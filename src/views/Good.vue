@@ -12,17 +12,17 @@
       style="width: 100%"
     >
       <el-table-column
-        prop="goodsId"
+        prop="id"
         label="商品编号"
       >
       </el-table-column>
       <el-table-column
-        prop="goodsName"
+        prop="name"
         label="商品名"
       >
       </el-table-column>
       <el-table-column
-        prop="goodsIntro"
+        prop="dec"
         label="商品简介"
       >
       </el-table-column>
@@ -31,17 +31,17 @@
         width="150px"
       >
         <template #default="scope">
-          <img style="width: 100px; height: 100px;" :key="scope.row.goodsId" :src="$filters.prefix(scope.row.goodsCoverImg)" alt="商品主图">
+          <img style="width: 100px; height: 100px;" :key="scope.row.id" :src="$filters.prefix(scope.row.img)" alt="商品主图">
         </template>
       </el-table-column>
       <el-table-column
-        prop="stockNum"
+        prop="offernum"
         label="商品库存"
         
       >
       </el-table-column>
       <el-table-column
-        prop="sellingPrice"
+        prop="price"
         label="商品售价"
       >
       </el-table-column>
@@ -49,7 +49,7 @@
         label="上架状态"
       >
         <template #default="scope">
-          <span style="color: green;" v-if="scope.row.goodsSellStatus == 0">销售中</span>
+          <span style="color: green;" v-if="scope.row.offer == 0">销售中</span>
           <span style="color: red;" v-else>已下架</span>
         </template>
       </el-table-column>
@@ -59,10 +59,10 @@
         width="150px"
       >
         <template #default="scope">
-          <a style="cursor: pointer; margin-right: 10px" @click="handleEdit(scope.row.goodsId)">删除</a>
-          <a style="cursor: pointer; margin-right: 10px" @click="handleEdit(scope.row.goodsId)">修改</a>
-          <a style="cursor: pointer; margin-right: 10px" v-if="scope.row.goodsSellStatus == 0" @click="handleStatus(scope.row.goodsId, 1)">下架</a>
-          <a style="cursor: pointer; margin-right: 10px" v-else @click="handleStatus(scope.row.goodsId, 0)">上架</a>
+          <a style="cursor: pointer; margin-right: 10px" @click="handleDelete(scope.row.id)">删除</a>
+          <a style="cursor: pointer; margin-right: 10px" @click="handleEdit(scope.row.id)">修改</a>
+          <a style="cursor: pointer; margin-right: 10px" v-if="scope.row.offer== 0" @click="handleStatus(scope.row.id, 1)">下架</a>
+          <a style="cursor: pointer; margin-right: 10px" v-else @click="handleStatus(scope.row.id, 0)">上架</a>
         </template>
       </el-table-column>
     </el-table>
@@ -101,12 +101,14 @@ onMounted(() => {
 // 获取轮播图列表
 const getGoodList = () => {
   state.loading = true
-  axios.get('/goods/list', {
+  axios.get('/foo/goods/list', {
     params: {
+      id:1,
       pageNumber: state.currentPage,
       pageSize: state.pageSize
     }
   }).then(res => {
+    console.log(res);
     state.tableData = res.list
     state.total = res.totalCount
     state.currentPage = res.currPage
@@ -120,13 +122,23 @@ const handleAdd = () => {
 const handleEdit = (id) => {
   router.push({ path: '/add', query: { id } })
 }
+const handleDelete = (id) => {
+  axios.post(`/foo/goods/delete`, {
+    id
+  }).then(() => {
+    ElMessage.success('删除成功')
+    getGoodList()
+  })
+  
+}
 const changePage = (val) => {
   state.currentPage = val
   getGoodList()
 }
 const handleStatus = (id, status) => {
-  axios.put(`/goods/status/${status}`, {
-    ids: id ? [id] : []
+  axios.put(`/foo/goods/status`, {
+    ids: id ,
+    status
   }).then(() => {
     ElMessage.success('修改成功')
     getGoodList()

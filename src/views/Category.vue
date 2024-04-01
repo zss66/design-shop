@@ -28,19 +28,19 @@
       >
       </el-table-column>
       <el-table-column
-        prop="categoryName"
+        prop="name"
         label="分类名称"
       >
       </el-table-column>
       <el-table-column
-        prop="categoryRank"
+        prop="order"
         label="排序值"
         width="120"
       >
       </el-table-column>
       <el-table-column
-        prop="createTime"
-        label="添加时间"
+        prop="time"
+        label="修改时间"
         width="200"
       >
       </el-table-column>
@@ -49,13 +49,12 @@
         width="220"
       >
         <template #default="scope">
-          <a style="cursor: pointer; margin-right: 10px" @click="handleEdit(scope.row.categoryId)">修改</a>
-          <a style="cursor: pointer; margin-right: 10px" @click="handleNext(scope.row)">下级分类</a>
+          <a style="cursor: pointer; margin-right: 10px" @click="handleEdit(scope.row.id)">修改</a>
           <el-popconfirm
             title="确定删除吗？"
             confirmButtonText='确定'
             cancelButtonText='取消'
-            @confirm="handleDeleteOne(scope.row.categoryId)"
+            @confirm="handleDeleteOne(scope.row.id)"
           >
             <template #reference>
               <a style="cursor: pointer">删除</a>
@@ -96,7 +95,6 @@ const state = reactive({
   currentPage: 1, // 当前页
   pageSize: 10, // 分页大小
   type: 'add', // 操作类型
-  level: 1,
   parent_id: 0
 })
 onMounted(() => {
@@ -107,7 +105,7 @@ watchEffect(() => {
 })
 const unwatch = router.afterEach((to) => {
   // 每次路由变化的时候，都会触发监听时间，重新获取列表数据
-  if (['category', 'level2', 'level3'].includes(to.name)) {
+  if (['category'].includes(to.name)) {
     getCategory()
   }
 })
@@ -116,42 +114,28 @@ onUnmounted(() => {
 })
 // 获取分类列表
 const getCategory = () => {
-  const { level = 1, parent_id = 0 } = route.query
   state.loading = true
-  axios.get('/categories', {
+  axios.get('/foo/goods/class', {
     params: {
       pageNumber: state.currentPage,
       pageSize: state.pageSize,
-      categoryLevel: level,
-      parentId: parent_id
+      
+      
     }
   }).then(res => {
     state.tableData = res.list
     state.total = res.totalCount
     state.currentPage = res.currPage
     state.loading = false
-    state.level = level
-    state.parentId = parent_id
+   
+
   })
 }
 const changePage = (val) => {
   state.currentPage = val
   getCategory()
 }
-const handleNext = (item) => {
-  const levelNumber = item.categoryLevel + 1
-  if (levelNumber == 4) {
-    ElMessage.error('没有下一级')
-    return
-  }
-  router.push({
-    name: `level${levelNumber}`,
-    query: {
-      level: levelNumber,
-      parent_id: item.categoryId
-    }
-  })
-}
+
 // 添加分类
 const handleAdd = () => {
   state.type = 'add'
@@ -159,6 +143,7 @@ const handleAdd = () => {
 }
 // 修改分类
 const handleEdit = (id) => {
+  console.log(id);
   state.type = 'edit'
   addCate.value.open(id)
 }
@@ -172,9 +157,9 @@ const handleDelete = () => {
     ElMessage.error('请选择项')
     return
   }
-  axios.delete('/categories', {
+  axios.delete('/foo/goods/classdelete', {
     data: {
-      ids: state.multipleSelection.map(i => i.categoryId)
+      ids: state.multipleSelection.map(i => i.id)
     }
   }).then(() => {
     ElMessage.success('删除成功')
@@ -183,7 +168,7 @@ const handleDelete = () => {
 }
 // 单个删除
 const handleDeleteOne = (id) => {
-  axios.delete('/categories', {
+  axios.delete('/foo/goods/classdelete', {
     data: {
       ids: [id]
     }

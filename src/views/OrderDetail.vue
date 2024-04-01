@@ -79,7 +79,11 @@ const state = reactive({
   tableData: []
 })
 onMounted(() => {
-  axios.get(`/orders/${id}`).then(res => {
+  axios.get(`/foo/order/detail/`,{
+    params:{
+      id
+    }
+  }).then(res => {
     console.log(res)
     state.data = res
     state.tableData = res.newBeeMallOrderItemVOS

@@ -36,8 +36,6 @@ const formRef = ref(null)
 const route = useRoute()
 const state = reactive({
   visible: false,
-  categoryLevel: 1,
-  parentId: 0,
   ruleForm: {
     name: '',
     rank: ''
@@ -54,14 +52,20 @@ const state = reactive({
 })
 // 获取详情
 const getDetail = (id) => {
-  axios.get(`/categories/${id}`).then(res => {
+  axios.get(`/foo/goods/class`,{
+    params: {
+    id
+  }
+  }).then(res => {
     state.ruleForm = {
-      name: res.categoryName,
-      rank: res.categoryRank
+       name: res[0].name,
+       rank: res[0].order
     }
-    state.parentId = res.parentId
-    state.categoryLevel = res.categoryLevel
-  })
+    
+    
+  }) .catch(error => {
+    console.error('发生错误：', error);
+  });
 }
 // 开启弹窗
 const open = (id) => {
@@ -72,14 +76,13 @@ const open = (id) => {
     getDetail(id)
   } else {
     // 否则为新增模式
-    // 新增类目，从路由获取分类 level 级别和父分类 id
-    const { level = 1, parent_id = 0 } = route.query
+    // 新增类目
     state.ruleForm = {
       name: '',
       rank: ''
     }
-    state.parentId = parent_id
-    state.categoryLevel = level
+    
+   
   }
 }
 // 关闭弹窗
@@ -91,11 +94,9 @@ const submitForm = () => {
     if (valid) {
       if (props.type == 'add') {
         // 添加方法
-        axios.post('/categories', {
-          categoryLevel: state.categoryLevel,
-          parentId: state.parentId,
-          categoryName: state.ruleForm.name,
-          categoryRank: state.ruleForm.rank
+        axios.post('/foo/goods/classedit', {
+          name: state.ruleForm.name,
+          order: state.ruleForm.rank
         }).then(() => {
           ElMessage.success('添加成功')
           state.visible = false
@@ -104,12 +105,10 @@ const submitForm = () => {
         })
       } else {
         // 修改方法
-        axios.put('/categories', {
-          categoryId: state.id,
-          categoryLevel: state.categoryLevel,
-          parentId: state.categoryLevel,
-          categoryName: state.ruleForm.name,
-          categoryRank: state.ruleForm.rank
+        axios.post('/foo/goods/classedit', {
+          id: state.id,
+          name: state.ruleForm.name,
+          order: state.ruleForm.rank
         }).then(() => {
           ElMessage.success('修改成功')
           state.visible = false

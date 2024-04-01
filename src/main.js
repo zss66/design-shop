@@ -31,11 +31,12 @@ import router from '@/router'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 const orderStatus = {
-  0: '待支付',
-  1: '已支付',
-  2: '配货完成',
-  3: '出库成功',
-  4: '交易成功',
+  0: '超时关闭',
+  2: '待支付',
+  3: '已支付',
+  4: '接单完成',
+  5: '出餐成功',
+  7: '交易成功',
   '-1': '手动关闭',
   '-2': '超时关闭',
   '-3': '商家关闭'
@@ -62,10 +63,10 @@ app.config.globalProperties.$filters = {
   }
 }
 
-app.config.globalProperties.goTop = function () {
-  const main = document.querySelector('.main')
-  main.scrollTop = 0
-}
+// app.config.globalProperties.goTop = function () {
+//   const main = document.querySelector('.main')
+//   main.scrollTop = 0
+// }
 
 app.use(router) // 引用路由实例
 

@@ -20,8 +20,13 @@
         <el-form-item label="商品库存" prop="stockNum">
           <el-input type="number" min="0" style="width: 300px" v-model="state.goodForm.stockNum" placeholder="请输入商品库存"></el-input>
         </el-form-item>
-        <el-form-item label="商品标签" prop="tag">
-          <el-input style="width: 300px" v-model="state.goodForm.tag" placeholder="请输入商品小标签"></el-input>
+        <el-form-item label="中餐专用标记" prop="tag">
+          <el-radio-group v-model="state.goodForm.tag">
+      <el-radio :value=0 size="large" border>中式素菜</el-radio>
+      <el-radio :value=1 size="large" border>中式荤菜</el-radio>
+      <el-radio :value=2 size="large" border>其他</el-radio>
+   
+    </el-radio-group>
         </el-form-item>
         <el-form-item label="上架状态" prop="goodsSellStatus">
           <el-radio-group v-model="state.goodForm.goodsSellStatus">
@@ -32,11 +37,9 @@
         <el-form-item required label="商品主图" prop="goodsCoverImg">
           <el-upload
             class="avatar-uploader"
-            :action="state.uploadImgServer"
+            action="http://121.36.193.95:3000/api/uploadimg"
             accept="jpg,jpeg,png"
-            :headers="{
-              token: state.token
-            }"
+           
             :show-file-list="false"
             :before-upload="handleBeforeUpload"
             :on-success="handleUrlSuccess"
@@ -44,9 +47,6 @@
             <img style="width: 100px; height: 100px; border: 1px solid #e9e9e9;" v-if="state.goodForm.goodsCoverImg" :src="state.goodForm.goodsCoverImg" class="avatar">
             <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
           </el-upload>
-        </el-form-item>
-        <el-form-item label="详情内容">
-          <div ref='editor'></div>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="submitAdd()">{{ state.id ? '立即修改' : '立即创建' }}</el-button>
@@ -57,8 +57,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted, onBeforeUnmount, getCurrentInstance } from 'vue'
-import WangEditor from 'wangeditor'
+import { reactive, ref, onMounted, getCurrentInstance } from 'vue'
 import axios from '@/utils/axios'
 import { ElMessage } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
@@ -83,7 +82,7 @@ const state = reactive({
     stockNum: '',
     goodsSellStatus: '0',
     goodsCoverImg: '',
-    tag: ''
+    tag: 2
   },
   rules: {
     goodsName: [
@@ -104,106 +103,72 @@ const state = reactive({
     lazy: true,
     lazyLoad(node, resolve) {
       const { level = 0, value } = node
-      axios.get('/categories', {
+      axios.get('/foo/goods/class', {
         params: {
+          shopid:1,
           pageNumber: 1,
           pageSize: 1000,
-          categoryLevel: level + 1,
-          parentId: value || 0
         }
       }).then(res => {
         const list = res.list
         const nodes = list.map(item => ({
-          value: item.categoryId,
-          label: item.categoryName,
-          leaf: level > 1
+          value: item.id,
+          label: item.name,
+          leaf: level ==0
         }))
         resolve(nodes)
       })
     }
   }
 })
-let instance
+
 onMounted(() => {
-  instance = new WangEditor(editor.value)
-  instance.config.showLinkImg = false
-  instance.config.showLinkImgAlt = false
-  instance.config.showLinkImgHref = false
-  instance.config.uploadImgMaxSize = 2 * 1024 * 1024 // 2M
-  instance.config.uploadFileName = 'file'
-  instance.config.uploadImgHeaders = {
-    token: state.token
-  }
-  // 图片返回格式不同，需要自定义返回格式
-  instance.config.uploadImgHooks = {
-    // 图片上传并返回了结果，想要自己把图片插入到编辑器中
-    // 例如服务器端返回的不是 { errno: 0, data: [...] } 这种格式，可使用 customInsert
-    customInsert: function(insertImgFn, result) {
-      console.log('result', result)
-      // result 即服务端返回的接口
-      // insertImgFn 可把图片插入到编辑器，传入图片 src ，执行函数即可
-      if (result.data && result.data.length) {
-        result.data.forEach(item => insertImgFn(item))
-      }
-    }
-  }
-  instance.config.uploadImgServer = uploadImgsServer
-  Object.assign(instance.config, {
-    onchange() {
-      console.log('change')
-    },
-  })
-  instance.create()
   if (id) {
-    axios.get(`/goods/${id}`).then(res => {
-      const { goods, firstCategory, secondCategory, thirdCategory } = res
+    axios.get(`/foo/goods/detail`,{
+      params:{
+        id
+      }
+    }).then(res => {
+      const { goods } = res
+      console.log(goods);
       state.goodForm = {
-        goodsName: goods.goodsName,
-        goodsIntro: goods.goodsIntro,
-        originalPrice: goods.originalPrice,
-        sellingPrice: goods.sellingPrice,
-        stockNum: goods.stockNum,
-        goodsSellStatus: String(goods.goodsSellStatus),
-        goodsCoverImg: proxy.$filters.prefix(goods.goodsCoverImg),
-        tag: goods.tag
+        goodsName: goods.name,
+        goodsIntro: goods.dec,
+        originalPrice: goods.price,
+        sellingPrice: goods.newprice,
+        stockNum: goods.offernum,
+        goodsSellStatus: String(goods.offer),
+        goodsCoverImg: proxy.$filters.prefix(goods.img),
+        tag: goods.type
       }
-      state.categoryId = goods.goodsCategoryId
-      state.defaultCate = `${firstCategory.categoryName}/${secondCategory.categoryName}/${thirdCategory.categoryName}`
-      if (instance) {
-        // 初始化商品详情 html
-        instance.txt.html(goods.goodsDetailContent)
-      }
+      state.categoryId = goods.classid
+      state.defaultCate = goods.classname
+    
     })
   }
 })
-onBeforeUnmount(() => {
-  instance.destroy()
-  instance = null
-})
+
 const submitAdd = () => {
   goodRef.value.validate((vaild) => {
     if (vaild) {
       // 默认新增用 post 方法
       let httpOption = axios.post
       let params = {
-        goodsCategoryId: state.categoryId,
-        goodsCoverImg: state.goodForm.goodsCoverImg,
-        goodsDetailContent: instance.txt.html(),
-        goodsIntro: state.goodForm.goodsIntro,
-        goodsName: state.goodForm.goodsName,
-        goodsSellStatus: state.goodForm.goodsSellStatus,
-        originalPrice: state.goodForm.originalPrice,
-        sellingPrice: state.goodForm.sellingPrice,
-        stockNum: state.goodForm.stockNum,
-        tag: state.goodForm.tag
+        classid: state.categoryId,
+        img: state.goodForm.goodsCoverImg,
+        dec: state.goodForm.goodsIntro,
+        name: state.goodForm.goodsName,
+        offer: state.goodForm.goodsSellStatus,
+        price: state.goodForm.originalPrice,
+        newprice: state.goodForm.sellingPrice,
+        num: state.goodForm.stockNum,
+        type: state.goodForm.tag
       }
       console.log('params', params)
       if (id) {
-        params.goodsId = id
-        // 修改商品使用 put 方法
-        httpOption = axios.put
+        params.id = id
       }
-      httpOption('/goods', params).then(() => {
+      httpOption('/foo/goods/change', params).then(() => {
         ElMessage.success(id ? '修改成功' : '添加成功')
         router.push({ path: '/good' })
       })
@@ -221,6 +186,7 @@ const handleUrlSuccess = (val) => {
   state.goodForm.goodsCoverImg = val.data || ''
 }
 const handleChangeCate = (val) => {
+  console.log(val);
   state.categoryId = val[2] || 0
 }
 </script>
