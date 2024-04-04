@@ -83,6 +83,8 @@ import { ElMessage } from 'element-plus'
 import { Plus, Delete } from '@element-plus/icons-vue'
 import axios from '@/utils/axios'
 import DialogAddCategory from '@/components/DialogAddCategory.vue'
+import { localGet } from '@/utils'
+
 
 const addCate = ref(null)
 const router = useRouter() // 声明路由实例
@@ -119,8 +121,7 @@ const getCategory = () => {
     params: {
       pageNumber: state.currentPage,
       pageSize: state.pageSize,
-      
-      
+      shoperid: localGet('shoper').id
     }
   }).then(res => {
     state.tableData = res.list

@@ -8,7 +8,7 @@
           </div>
         </template>
         <div>
-          {{ state.data.orderStatusString }}
+          {{ $filters.orderMap(state.data.orderStatus) }}
         </div>
       </el-card>
       <el-card class="data-item" shadow="hover">
@@ -45,8 +45,8 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="goodsId"
-        label="商品编号"
+        prop="uId"
+        label="用户编号"
       >
       </el-table-column>
       <el-table-column

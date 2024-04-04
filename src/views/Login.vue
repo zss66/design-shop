@@ -15,7 +15,7 @@
           <el-input type="password" v-model.trim="state.ruleForm.password" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item>
-          <div style="color: #333">登录表示您已同意<a>《服务条款》</a></div>
+          <div style="color: #333">登录表示您已同意<a>《服务条款》</a>    <a @click="router.push('/zhuce')">前往注册</a></div>
           <el-button style="width: 100%" type="primary" @click="submitForm">立即登录</el-button>
           <el-checkbox v-model="state.checked" @change="!state.checked">下次自动登录</el-checkbox>
         </el-form-item>
@@ -23,10 +23,10 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import axios from '@/utils/axios'
 import md5 from 'js-md5'
+import router from '../router/index'
 import { reactive, ref } from 'vue'
 import { localSet } from '@/utils'
 const loginForm = ref(null)
@@ -48,11 +48,12 @@ const state = reactive({
 const submitForm = async () => {
   loginForm.value.validate((valid) => {
     if (valid) {
-      axios.post('/adminUser/login', {
+      axios.post('/foo/shoper/login', {
         userName: state.ruleForm.username || '',
         passwordMd5: md5(state.ruleForm.password)
       }).then(res => {
-        localSet('token', res)
+        console.log(res);
+        localSet('shoper', res)
         window.location.href = '/'
       })
     } else {
