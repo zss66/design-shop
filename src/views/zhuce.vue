@@ -11,15 +11,16 @@
           <el-form-item label="账号昵称" prop="username">
             <el-input type="text" v-model.trim="state.ruleForm.username" autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item label="手机号" prop="phone">
-            <el-input type="" v-model.trim="state.ruleForm.password" ></el-input> <el-button type="primary" plain>发送验证码</el-button>
+          <el-form-item label="手机号" prop="phone" >
+            <el-input type="" v-model.trim="state.ruleForm.password"  style="width: 65%;"></el-input><el-button type="primary" plain>发送验证码</el-button> 
           </el-form-item>
           <el-form-item label="密码" prop="password">
             <el-input type="password" v-model.trim="state.ruleForm.password" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item>
-            <div style="color: #333">注册表示您已同意<a>《服务条款》</a></div>
+            <div style="color: #333">注册表示您已同意<a>《服务条款》</a>    <a @click="router.push('/login')">前往登录</a></div>
             <el-button style="width: 100%" type="primary" @click="submitForm">立即注册</el-button>
+           
           </el-form-item>
         </el-form>
       </div>
@@ -28,6 +29,7 @@
   
   <script setup>
   import axios from '@/utils/axios'
+  import router from '../router/index'
   import md5 from 'js-md5'
   import { reactive, ref } from 'vue'
   import { localSet } from '@/utils'

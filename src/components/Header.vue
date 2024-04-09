@@ -13,14 +13,20 @@
       >
         <template #reference>
           <div class="author">
-            <i class="icon el-icon-s-custom" />
-            {{ state.userInfo && state.userInfo.nickName || '' }}
-            <i class="el-icon-caret-bottom" />
+            {{ state.userInfo && state.userInfo.nickname || '' }}
+            <el-icon><CaretBottom /></el-icon>
           </div>
         </template>
         <div class="nickname">
-          <p>登录名：{{ state.userInfo && state.userInfo.loginUserName || '' }}</p>
-          <p>昵称：{{ state.userInfo && state.userInfo.nickName || '' }}</p>
+          <div style="display:flex ;align-items: center;">
+            <p style="line-height: 40px;">头像： </p>
+          <el-avatar
+        :src="state.userInfo.showurl"
+      />
+          </div>
+         
+         
+          <p>昵称：{{ state.userInfo && state.userInfo.nickname || '' }}</p>
           <el-tag size="small" effect="dark" class="logout" @click="logout">退出</el-tag>
         </div>
       </el-popover>
@@ -32,34 +38,28 @@
 import { onMounted, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from '@/utils/axios'
-import { localRemove, pathMap } from '@/utils'
+import { localRemove, pathMap,localGet } from '@/utils'
 
 const router = useRouter()
 const state = reactive({
-  name: 'dashboard',
-  userInfo: null, // 用户信息变量
+  name: '商家后台',
+  userInfo: '', // 用户信息变量
   hasBack: false, // 是否展示返回icon
 })
 // 初始化执行方法
   onMounted(() => {
   const pathname = window.location.hash.split('/')[1] || ''
   if (!['login'].includes(pathname)) {
-    getUserInfo()
+      state.userInfo=localGet('shoper')
   }
 })
-// 获取用户信息
-const getUserInfo = async () => {
-  const userInfo = await axios.get('/adminUser/profile')
-  state.userInfo = userInfo
-}
+
 // 退出登录
 const logout = () => {
-  axios.delete('/logout').then(() => {
-    // 退出之后，将本地保存的 token  清理掉
-    localRemove('token')
+   // 退出之后，将本地保存的 token  清理掉
+   localRemove('shoper')
     // 回到登录页
     router.push({ path: '/login' })
-  })
 }
 
 router.afterEach((to) => {
@@ -99,6 +99,9 @@ const back = () => {
   .author {
     margin-left: 10px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    
   }
 </style>
 

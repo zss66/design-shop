@@ -60,7 +60,7 @@ import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
 import { localGet, pathMap } from '@/utils'
 
-const noMenu = ['/login']
+const noMenu = ['/login','/zhuce']
 const router = useRouter()
 const state = reactive({
   showMenu: true,

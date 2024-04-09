@@ -105,7 +105,7 @@ const state = reactive({
       const { level = 0, value } = node
       axios.get('/foo/goods/class', {
         params: {
-          shopid:1,
+          shopid:localGet('shoper').id,
           pageNumber: 1,
           pageSize: 1000,
         }
@@ -126,7 +126,7 @@ onMounted(() => {
   if (id) {
     axios.get(`/foo/goods/detail`,{
       params:{
-        id
+        id:localGet('shoper').id
       }
     }).then(res => {
       const { goods } = res
@@ -166,7 +166,8 @@ const submitAdd = () => {
       }
       console.log('params', params)
       if (id) {
-        params.id = id
+        params.id = id,
+        params.shopid=localGet('shoper').id
       }
       httpOption('/foo/goods/change', params).then(() => {
         ElMessage.success(id ? '修改成功' : '添加成功')

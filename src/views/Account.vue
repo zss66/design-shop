@@ -10,7 +10,8 @@
       <el-form-item label="头像：" prop="showurl">
         <el-upload
     class="avatar-uploader"
-    action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+    action="http://121.36.193.95:3000/api/uploadimg"
+            accept="jpg,jpeg,png"
     :show-file-list="false"
     :on-success="handleAvatarSuccess"
     :before-upload="beforeAvatarUpload"
@@ -26,7 +27,8 @@
       <el-form-item label="展示横图：" prop="swiperurl">
         <el-upload
     class="avatar-uploader"
-    action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+    action="http://121.36.193.95:3000/api/uploadimg"
+            accept="jpg,jpeg,png"
     :show-file-list="false"
     :on-success="handleAvatarSuccess"
     :before-upload="beforeAvatarUpload"
@@ -38,8 +40,9 @@
       </el-form-item>
       <el-form-item label="商铺类型：" prop="type">
         <el-radio-group v-model="state.nameForm.type">
-      <el-radio value="中式快餐" size="large" border>Option A</el-radio>
-      <el-radio value="西式快餐" size="large" border>Option B</el-radio>
+      <el-radio value="中式快餐" size="large" border>中式快餐</el-radio>
+      <el-radio value="西式快餐" size="large" border>西式快餐</el-radio>
+      <el-radio value="其他精品" size="large" border>其他精品</el-radio>
     </el-radio-group>
       </el-form-item>
       <el-form-item label="商铺介绍：" prop="shopdec">
@@ -106,6 +109,7 @@ import axios from '@/utils/axios'
 import { ElMessage } from 'element-plus'
 import md5 from 'js-md5'
 import { Plus } from '@element-plus/icons-vue'
+import { localGet } from '@/utils'
 const nameRef = ref(null)
 const passRef = ref(null)
 const state = reactive({
@@ -146,7 +150,7 @@ const state = reactive({
 onMounted(() => {
   axios.get('/foo/shoper/info', {
   params: {
-    id: 1
+    id: localGet('shoper').id
   }
 }).then(res => {
  console.log(res);
@@ -170,9 +174,9 @@ console.log(typeof state.nameForm.offer);
 const submitName = () => {
   nameRef.value.validate((vaild) => {
     if (vaild) {
-      axios.put('/adminUser/name', {
-        loginUserName: state.nameForm.loginName,
-        nickName: state.nameForm.nickName
+      axios.put('/foo/shoper/changeinfo', {
+        id:localGet('shoper').id,
+        data:state.nameForm
       }).then(() => {
         ElMessage.success('修改成功')
         window.location.reload()
@@ -183,9 +187,10 @@ const submitName = () => {
 const submitPass = () => {
   passRef.value.validate((vaild) => {
     if (vaild) {
-      axios.put('/adminUser/password', {
-        originalPassword: md5(state.passForm.oldpass),
-        newPassword: md5(state.passForm.newpass)
+      axios.put('/foo/shoper/pws', {
+        id:localGet('shoper').id,
+        oldpws: md5(state.passForm.oldpass),
+        newpws: md5(state.passForm.newpass)
       }).then(() => {
         ElMessage.success('修改成功')
         window.location.reload()

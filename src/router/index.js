@@ -15,7 +15,12 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: () => import(/* webpackChunkName: "login" */ '../views/Login.vue')
+      component: () => import(/* webpackChunkName: "login" */ '../views/Login.vue'),
+    },
+    {
+      path: '/zhuce',
+      name: 'zhuce',
+      component: () => import(/* webpackChunkName: "login" */ '../views/zhuce.vue'),
     },
     {
       path: '/add',
@@ -42,18 +47,7 @@ const router = createRouter({
       path: '/category',
       name: 'category',
       component: () => import(/* webpackChunkName: "category" */ '../views/Category.vue'),
-      children: [
-        {
-          path: '/category/level2',
-          name: 'level2',
-          component: () => import(/* webpackChunkName: "level2" */ '../views/Category.vue'),
-        },
-        {
-          path: '/category/level3',
-          name: 'level3',
-          component: () => import(/* webpackChunkName: "level3" */ '../views/Category.vue'),
-        }
-      ]
+      
     },
     {
       path: '/good',
